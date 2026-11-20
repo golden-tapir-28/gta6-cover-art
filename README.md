@@ -15,9 +15,17 @@ share. Built for the [make.fun gta6-cover-art-01 bounty](https://make.fun/bounty
 - **Crop + position each photo:** pick a photo per panel, zoom with a slider
   or the mouse wheel, drag it around right on the preview.
 - **Fill several panels:** one photo across every panel, or a different photo
-  in each — four poster layouts (Duo, Trio, Quad, Hero).
+  in each — five poster layouts (Duo, Trio, Quad, Hero, and the slanted
+  Vice Slant with diagonal dividers).
 - **Edit the caption:** big bold title plus a subtitle, four caption colours,
-  four colour grades (Sunset, Neon Night, Golden Hour, Noir).
+  nine colour grades (Sunset, Neon Night, Golden Hour, Noir, Vice Purple,
+  Teal Noir, Blood Orange, Midnight, Pastel).
+- **Callouts:** label any spot on the cover — a pill with a gold anchor dot —
+  and remove them one by one.
+- **Seal and billing block:** a tilted round Leonida stamp in the corner
+  (wordmark editable) and a movie-poster credits line along the bottom edge.
+- **Role tags:** mark each panel's character — Protagonist, Antagonist,
+  Driver, Partner, Lookout or Fixer — as a gold-rimmed pill.
 - **Fast and easy:** photo to PNG in four steps, in the common post sizes
   **1080×1080**, **1080×1350** and **1920×1080**.
 
@@ -45,9 +53,10 @@ and sample is a file under `app/`; photos are read on your machine only.
 - `app/index.html` — the editor page.
 - `app/style.css` — the neon dusk editor theme.
 - `app/src/main.js` — state, controls, drag-to-pan, export.
-- `app/src/cover.js` — the poster renderer (panels, caption, seams).
-- `app/src/panels.js` — the four multi-panel layouts.
-- `app/src/grade.js` — sunset/neon grades, halftone dots, vignette.
+- `app/src/cover.js` — the poster renderer (panels, caption, seams, callouts,
+  seal, billing block, role tags).
+- `app/src/panels.js` — the five multi-panel layouts, including Vice Slant.
+- `app/src/grade.js` — nine grades, halftone dots, vignette.
 - `app/src/shots.js` — fixed scenes for the screenshots.
 - `main.ts` — hands the app in: copies `app/` + `screenshots/` to `/output`
   and writes `dossier.json` with the vendored make.fun library.

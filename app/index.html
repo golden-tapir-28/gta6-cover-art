@@ -53,7 +53,47 @@
       <label>Move up / down <span id="pany-val" class="val">0</span>
         <input id="panel-pany" type="range" min="-0.5" max="0.5" step="0.01" value="0">
       </label>
+      <label>Role tag in this panel
+        <select id="panel-role"></select>
+      </label>
       <p class="hint">Tip: drag the photo right on the preview to move it, scroll over it to zoom.</p>
+    </div>
+
+    <div class="group">
+      <h2>Callouts</h2>
+      <p class="hint">Label a spot on the cover — a pill with a gold anchor dot.</p>
+      <label>Label
+        <input id="callout-text" type="text" maxlength="24" placeholder="e.g. The getaway car">
+      </label>
+      <label>Panel
+        <select id="callout-panel"></select>
+      </label>
+      <label>Across <span id="callout-x-val" class="val">50%</span>
+        <input id="callout-x" type="range" min="0" max="100" step="1" value="50">
+      </label>
+      <label>Down <span id="callout-y-val" class="val">50%</span>
+        <input id="callout-y" type="range" min="0" max="100" step="1" value="50">
+      </label>
+      <button id="callout-add" type="button" class="ghost">Add callout</button>
+      <div id="callout-list" class="callout-list"></div>
+    </div>
+
+    <div class="group">
+      <h2>Seal</h2>
+      <label class="check"><input id="seal-on" type="checkbox" checked> Show the Leonida stamp</label>
+      <label>Wordmark
+        <input id="seal-word" type="text" maxlength="14" value="LEONIDA">
+      </label>
+      <p class="hint">A tilted round stamp in the top-right corner, double gold ring.</p>
+    </div>
+
+    <div class="group">
+      <h2>Billing block</h2>
+      <label class="check"><input id="billing-on" type="checkbox" checked> Show the credits line</label>
+      <label>Credits
+        <input id="billing-text" type="text" maxlength="90" value="A LEONIDA PRODUCTION • STARRING THE CREW • MUSIC BY VICE FM">
+      </label>
+      <p class="hint">Movie-poster credits along the very bottom edge.</p>
     </div>
 
     <div class="group">

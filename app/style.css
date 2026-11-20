@@ -181,6 +181,24 @@ button { font: inherit; cursor: pointer; }
   box-shadow: 0 6px 0 #7c1e78;
 }
 .export:active { transform: translateY(4px); box-shadow: 0 2px 0 #7c1e78; }
+
+/* Checkbox rows and the callout list. */
+.check { flex-direction: row; align-items: center; gap: 8px; font-weight: 600; }
+.check input[type=checkbox] { accent-color: #ff5e78; width: 18px; height: 18px; }
+.callout-list { display: flex; flex-direction: column; gap: 8px; }
+.callout-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  background: #160a24;
+  border: 1px solid #5a3a78;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.callout-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ghost.small { padding: 5px 10px; font-size: 13px; }
 #status { margin: 0; min-height: 1.4em; color: #a8ffef; }
 
 .preview {

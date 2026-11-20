@@ -4,7 +4,7 @@
 // the fonts and samples are files under app/, and the page makes no
 // network request at all. A `?shot=` query sets up a fixed scene for a
 // screenshot instead (see shots.js).
-import { drawCover, CAPTION_COLOURS, CAPTION_COLOUR_IDS } from './cover.js';
+import { drawCover, CAPTION_COLOURS, CAPTION_COLOUR_IDS, ROLE_TAGS } from './cover.js';
 import { LAYOUTS, LAYOUT_IDS, panelCount } from './panels.js';
 import { GRADES, GRADE_IDS } from './grade.js';
 import { runShot } from './shots.js';
@@ -35,17 +35,22 @@ export const state = {
   title: 'Sunset Heist',
   subtitle: 'Vice nights • 2026',
   photos: [], // { name, img } in load order
-  panels: [], // { photo, zoom, panX, panY } per panel slot
+  panels: [], // { photo, zoom, panX, panY, role } per panel slot
   selectedPanel: 0,
+  callouts: [], // { text, panel, x, y } — x, y are fractions of the panel
+  seal: { on: true, word: 'LEONIDA' },
+  billing: { on: true, text: 'A LEONIDA PRODUCTION • STARRING THE CREW • MUSIC BY VICE FM' },
 };
 
 function ensurePanels() {
   const n = panelCount(state.layout);
   while (state.panels.length < n) {
-    state.panels.push({ photo: null, zoom: 1, panX: 0, panY: 0 });
+    state.panels.push({ photo: null, zoom: 1, panX: 0, panY: 0, role: null });
   }
   state.panels.length = n;
   if (state.selectedPanel >= n) state.selectedPanel = 0;
+  // Drop callouts that point at a panel the layout no longer has.
+  state.callouts = state.callouts.filter((c) => c.panel < n);
 }
 
 /** The export canvas is always the exact export size; CSS scales the preview. */
@@ -157,6 +162,52 @@ function renderPanelControls() {
   document.getElementById('zoom-val').textContent = `${Math.round(slot.zoom * 100)}%`;
   document.getElementById('panx-val').textContent = `${Math.round(slot.panX * 100)}`;
   document.getElementById('pany-val').textContent = `${Math.round(slot.panY * 100)}`;
+  document.getElementById('panel-role').value = slot.role || '';
+}
+
+/** The callout list: one row per added callout, each with a Remove button. */
+function renderCallouts() {
+  const listEl = document.getElementById('callout-list');
+  listEl.innerHTML = '';
+  state.callouts.forEach((callout, i) => {
+    const row = document.createElement('div');
+    row.className = 'callout-row';
+    const label = document.createElement('span');
+    label.textContent = `${callout.text} — panel ${callout.panel + 1}`;
+    row.appendChild(label);
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'ghost small';
+    remove.textContent = 'Remove';
+    remove.addEventListener('click', () => {
+      state.callouts.splice(i, 1);
+      renderCallouts();
+      redraw();
+    });
+    row.appendChild(remove);
+    listEl.appendChild(row);
+  });
+  if (!state.callouts.length) {
+    const hint = document.createElement('p');
+    hint.className = 'tray-empty';
+    hint.textContent = 'No callouts yet — add one above.';
+    listEl.appendChild(hint);
+  }
+}
+
+/** The panel picker in the callout form follows the current layout. */
+function renderCalloutPanelOptions() {
+  const select = document.getElementById('callout-panel');
+  const current = Number(select.value || 0);
+  select.innerHTML = '';
+  const n = panelCount(state.layout);
+  for (let i = 0; i < n; i++) {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = `Panel ${i + 1}`;
+    select.appendChild(option);
+  }
+  select.value = String(Math.min(current, n - 1));
 }
 
 /** Builds a row of buttons from an option map; the active one is marked. */
@@ -235,6 +286,23 @@ function buildPanelTabs() {
       renderPanelControls();
     });
     tabs.appendChild(button);
+  }
+  renderCalloutPanelOptions();
+}
+
+/** The role-tag picker for the selected panel. */
+function buildRoleChoices() {
+  const select = document.getElementById('panel-role');
+  select.innerHTML = '';
+  const none = document.createElement('option');
+  none.value = '';
+  none.textContent = '— no role tag —';
+  select.appendChild(none);
+  for (const role of ROLE_TAGS) {
+    const option = document.createElement('option');
+    option.value = role;
+    option.textContent = role;
+    select.appendChild(option);
   }
 }
 
@@ -345,6 +413,49 @@ function wireControls() {
     renderPanelControls();
     redraw();
   });
+  document.getElementById('panel-role').addEventListener('change', (e) => {
+    state.panels[state.selectedPanel].role = e.target.value || null;
+    redraw();
+  });
+  document.getElementById('callout-x').addEventListener('input', (e) => {
+    document.getElementById('callout-x-val').textContent = `${e.target.value}%`;
+  });
+  document.getElementById('callout-y').addEventListener('input', (e) => {
+    document.getElementById('callout-y-val').textContent = `${e.target.value}%`;
+  });
+  document.getElementById('callout-add').addEventListener('click', () => {
+    const text = document.getElementById('callout-text').value.trim();
+    if (!text) {
+      setStatus('Type a callout label first.');
+      return;
+    }
+    state.callouts.push({
+      text,
+      panel: Number(document.getElementById('callout-panel').value || 0),
+      x: Number(document.getElementById('callout-x').value) / 100,
+      y: Number(document.getElementById('callout-y').value) / 100,
+    });
+    document.getElementById('callout-text').value = '';
+    renderCallouts();
+    redraw();
+    setStatus(`Callout “${text}” added.`);
+  });
+  document.getElementById('seal-on').addEventListener('change', (e) => {
+    state.seal.on = e.target.checked;
+    redraw();
+  });
+  document.getElementById('seal-word').addEventListener('input', (e) => {
+    state.seal.word = e.target.value;
+    redraw();
+  });
+  document.getElementById('billing-on').addEventListener('change', (e) => {
+    state.billing.on = e.target.checked;
+    redraw();
+  });
+  document.getElementById('billing-text').addEventListener('input', (e) => {
+    state.billing.text = e.target.value;
+    redraw();
+  });
   document.getElementById('export').addEventListener('click', exportCover);
 }
 
@@ -357,6 +468,8 @@ buildGradeChoices();
 buildColourChoices();
 buildSizeChoices();
 buildPanelTabs();
+buildRoleChoices();
+renderCallouts();
 wireControls();
 wireCanvasGestures();
 renderTray();

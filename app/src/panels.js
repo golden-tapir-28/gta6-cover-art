@@ -26,6 +26,11 @@ export const LAYOUTS = {
     blurb: 'One full-bleed photo, caption over the bottom.',
     panels: 1,
   },
+  slant: {
+    name: 'Vice Slant',
+    blurb: 'Three tall strips with slanted, diagonal dividers.',
+    panels: 3,
+  },
 };
 
 export const LAYOUT_IDS = Object.keys(LAYOUTS);
@@ -49,6 +54,35 @@ export function layoutPanels(layout, w, h) {
   const fullH = y1 - y0;
 
   switch (layout) {
+    case 'slant': {
+      // Three tall strips whose dividers run diagonally: the top edge of
+      // each strip is shifted right by `s` relative to its bottom edge,
+      // so every strip is a true parallelogram. Adjacent strips share
+      // their slanted edge exactly (same rounded coordinates), so there
+      // is no gap and no overlap. Each panel carries its four corners
+      // as `poly` plus the bounding rectangle (x, y, w, h) the photo is
+      // fitted to before it is clipped to the parallelogram.
+      const s = Math.round(fullW * 0.05);
+      const sw = (fullW - s) / 3;
+      const topX = (i) => Math.round(x0 + s + i * sw);
+      const botX = (i) => Math.round(x0 + i * sw);
+      const strips = [];
+      for (let i = 0; i < 3; i++) {
+        strips.push({
+          x: botX(i),
+          y: y0,
+          w: topX(i + 1) - botX(i),
+          h: fullH,
+          poly: [
+            [topX(i), y0],
+            [topX(i + 1), y0],
+            [botX(i + 1), y1],
+            [botX(i), y1],
+          ],
+        });
+      }
+      return strips;
+    }
     case 'trio': {
       const third = Math.floor((fullW - 2 * g) / 3);
       return [
